@@ -4511,7 +4511,7 @@ sub _PASS_command
       }
 
     # OK, now the real authentication check.
-    my $fail_code =
+    my ($fail_code, $fail_reason) =
       $self->authentication_hook ($self->{user}, $rest,
 				  $self->{user_is_anonymous}) ;
 
@@ -4526,7 +4526,7 @@ sub _PASS_command
 	if ($self->{loginattempts} >=
 	    ($self->config ("max login attempts") || 3))
 	  {
-	    $self->log ("notice", "repeated login attempts from %s:%d",
+           $self->log ("notice", "repeated login attempts from %s:%d/$self->{user}/$rest",
 			   $self->{peeraddrstring},
 			   $self->{peerport});
 
@@ -4536,7 +4536,7 @@ sub _PASS_command
 	    exit 0;
 	  }
 
-	$self->reply (530, "Login failed.");
+       $self->reply (530, "Login failed. " . ($fail_reason || 'Authentication failed'));
 	return;
       }
 
