@@ -123,6 +123,18 @@ sub delete
     confess "virtual function";
   }
 
+=item $rv = $fileh->utime($mtime)
+
+Set the mtime of the current file to $mtime (unix timestamp).
+If successful, then return 0, else is the was an error return -1.
+
+=cut
+
+sub utime
+  {
+    return -1;
+  }
+
 1 # So that the require or use succeeds.
 
 __END__
