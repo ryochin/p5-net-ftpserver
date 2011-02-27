@@ -2325,6 +2325,8 @@ sub run
 			 SIZE => undef,
 			 REST => "STREAM",
 			 MDTM => undef,
+			 MFMT => undef,
+			 UTIME => undef,
 			 TVFS => undef,
 			 UTF8 => undef,
 			 MLST => join ("",
