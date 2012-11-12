@@ -7475,8 +7475,11 @@ sub _list_file
     my $self = shift;
     my $sock = shift;
     my $fileh = shift;
-    my $filename = shift || $fileh->filename;
+    my $filename = shift;
     my $statusref = shift;
+
+    $filename = $fileh->filename
+      if $filename eq '';
 
     # Get the status information.
     my @status;
