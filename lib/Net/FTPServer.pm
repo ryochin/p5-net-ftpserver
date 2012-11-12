@@ -6741,8 +6741,8 @@ sub _MLST_command
     # If not file name is given, then we need to return
     # status on the current directory. Else we return
     # status on the file or directory name given.
-    my $fileh = $self->{cwd};
-    my $dirh = $fileh->dir;
+    my $fileh;
+    my $dirh = $self->{cwd};
     my $filename = ".";
 
     if ($rest ne "")
