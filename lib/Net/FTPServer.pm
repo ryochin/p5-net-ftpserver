@@ -18,7 +18,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-# $Id: FTPServer.pm,v 1.11 2005/07/15 10:10:22 rwmj Exp $
 
 =pod
 
@@ -1769,11 +1768,12 @@ C<SITE SHOW> command:
 
   ftp> site show README
   200-File README:
-  200-$Id: FTPServer.pm,v 1.11 2005/07/15 10:10:22 rwmj Exp $
+  200-README
+  200-======
   200-
-  200-Net::FTPServer - A secure, extensible and configurable Perl FTP server.
+  200-Biblio@Tech Net::FTPServer - A full-featured, secure, extensible
   [...]
-  200-To contact the author, please email: Richard Jones <rich@annexia.org>
+  200-Copyright (C) 2000-2003 Richard Jones <rich@annexia.org> and other contributors.
   200 End of file.
 
 =head2 STANDARD PERSONALITIES

@@ -18,8 +18,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-# $Id: FileHandle.pm,v 1.2 2004/11/10 14:24:57 rwmj Exp $
-
 =pod
 
 =head1 NAME

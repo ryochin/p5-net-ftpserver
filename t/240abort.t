@@ -1,7 +1,5 @@
 #!/usr/bin/perl -w
 
-# $Id: 240abort.t,v 1.2 2004/12/01 13:00:50 rwmj Exp $
-
 use strict;
 use Test;
 use POSIX qw(dup2);

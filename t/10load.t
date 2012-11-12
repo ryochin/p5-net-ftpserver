@@ -1,7 +1,5 @@
 #!/usr/bin/perl -w
 
-# $Id: 10load.t,v 1.1 2003/09/28 11:50:45 rwmj Exp $
-
 use strict;
 use Test;
 

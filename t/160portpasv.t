@@ -1,7 +1,5 @@
 #!/usr/bin/perl -w
 
-# $Id: 160portpasv.t,v 1.1 2003/09/28 11:50:45 rwmj Exp $
-
 use strict;
 use Test;
 use POSIX qw(dup2);
