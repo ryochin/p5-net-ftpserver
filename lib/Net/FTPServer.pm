@@ -7530,7 +7530,7 @@ sub _list_file
 
     # Display the file.
     my $line = sprintf
-      ("%s%s%4d %-8s %-8s %8d %s %s%s\r\n",
+      ("%s%s%4d %-8s %-8s %8.0f %s %s%s\r\n",
        $fmt_mode,
        $fmt_perms,
        $nlink,
