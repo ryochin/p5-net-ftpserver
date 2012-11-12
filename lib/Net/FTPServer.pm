@@ -8118,7 +8118,7 @@ sub _newFromFileHandle
        ? &Archive::Zip::COMPRESSION_DEFLATED
        : &Archive::Zip::COMPRESSION_STORED);
     $self->unixFileAttributes ($perms);
-    $self->setLastModFileDateTimeFromUnix ($time);
+    $self->setLastModFileDateTimeFromUnix ($time) if $time > 0;
     $self->isTextFile (0);
 
     $self;
