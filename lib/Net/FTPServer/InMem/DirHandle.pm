@@ -28,11 +28,7 @@ Net::FTPServer::InMem::DirHandle - Store files in local memory
 
   use Net::FTPServer::InMem::DirHandle;
 
-=head1 DESCRIPTION
-
 =head1 METHODS
-
-=over 4
 
 =cut
 
@@ -402,8 +398,6 @@ sub open
 
 __END__
 
-=back 4
-
 =head1 AUTHORS
 
 Richard Jones (rich@annexia.org).
@@ -415,6 +409,6 @@ London, SW6 3EG, UK
 
 =head1 SEE ALSO
 
-L<Net::FTPServer(3)>, L<perl(1)>
+C<Net::FTPServer(3)>, C<perl(1)>
 
 =cut

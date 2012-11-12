@@ -771,7 +771,7 @@ Crypted passwords can be generated using the following command:
 Replace C<123456> with the actual password, and replace C<ab> with two
 random letters from the set C<[a-zA-Z0-9./]>. (The two random letters
 are the so-called I<salt> and are used to make dictionary attacks
-against the password file more difficult - see L<crypt(3)>).
+against the password file more difficult - see C<crypt(3)>).
 
 The userE<39>s home directory comes from the real Unix password file
 (or nsswitch-configured source) for the real Unix user.  You cannot
@@ -1586,7 +1586,7 @@ file:
            $Net::FTPServer::VERSION >= 1.025;
   </Perl>
 
-=back 4
+=back
 
 =head2 LOADING CUSTOMIZED SITE COMMANDS
 
@@ -1889,11 +1889,11 @@ serving files into and out of a database, for example.
 The current manual page contains information about the
 hooks in C<Net::FTPServer> which may be overridden.
 
-See L<Net::FTPServer::DirHandle(3)> for information about
+See C<Net::FTPServer::DirHandle(3)> for information about
 the methods in C<Net::FTPServer::DirHandle> which may be
 overridden.
 
-See L<Net::FTPServer::FileHandle(3)> for information about
+See C<Net::FTPServer::FileHandle(3)> for information about
 the methods in C<Net::FTPServer::FileHandle> which may be
 overridden.
 
@@ -2126,8 +2126,6 @@ consult the author for more information.
 
 =head1 METHODS
 
-=over 4
-
 =cut
 
 package Net::FTPServer;
@@ -2237,6 +2235,8 @@ $GOT_SIGHUP  = 0;
 $GOT_SIGTERM = 0;
 
 =pod
+
+=over 4
 
 =item Net::FTPServer->run ([\@ARGV]);
 
@@ -8067,7 +8067,7 @@ cases such as:
 Unfortunately it is not in general easily possible to catch these
 cases and cleanly call a hook. If your personality needs to do cleanup
 in all cases, then it is probably better to use an C<END> block inside
-your Server object (see L<perlmod(3)>). Even using an C<END> block
+your Server object (see C<perlmod(3)>). Even using an C<END> block
 cannot catch cases where the Perl interpreter crashes.
 
 Status: optional.
@@ -8193,8 +8193,7 @@ sub endRead
 
 __END__
 
-=back 4
-
+=back
 
 =head1 BUGS
 
@@ -8241,6 +8240,10 @@ Support for IPv6 (see RFC 2428), EPRT, EPSV commands.
 See also "XXX" comments in the code for other problems, missing features
 and bugs.
 
+=head1 DEPENDENCY
+
+IO::Dir, IO-Scalar
+
 =head1 FILES
 
   /etc/ftpd.conf
@@ -8257,7 +8260,15 @@ Keith Turner (keitht at silvaco.com),
 Azazel (azazel at azazel.net),
 and many others.
 
-=head1 COPYRIGHT
+=head1 MAINTAINER
+
+Ryo Okamoto C<< <ryo at aquahill dot net> >>
+
+=head1 REPOSITORY
+
+https://github.com/ryochin/p5-net-ftpserver
+
+=head1 COPYRIGHT & LICENSE
 
 Copyright (C) 2000 Biblio@Tech Ltd., Unit 2-3, 50 Carnwath Road,
 London, SW6 3EG, UK.
@@ -8281,11 +8292,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 =head1 SEE ALSO
 
-L<Net::FTPServer::Handle(3)>,
-L<Net::FTPServer::FileHandle(3)>,
-L<Net::FTPServer::DirHandle(3)>,
-L<Net::FTP(3)>,
-L<perl(1)>,
+C<Net::FTPServer::Handle(3)>,
+C<Net::FTPServer::FileHandle(3)>,
+C<Net::FTPServer::DirHandle(3)>,
+C<Net::FTP(3)>,
+C<perl(1)>,
 RFC 765,
 RFC 959,
 RFC 1579,

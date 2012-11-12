@@ -36,8 +36,6 @@ FTP server with a PostgreSQL database back-end.
 
 =head1 METHODS
 
-=over 4
-
 =cut
 
 package Net::FTPServer::DBeg1::Server;
@@ -175,8 +173,6 @@ sub _SITE_USAGE_command
 
 __END__
 
-=back 4
-
 =head1 FILES
 
   /etc/ftpd.conf
@@ -199,9 +195,9 @@ London, SW6 3EG, UK
 
 =head1 SEE ALSO
 
-L<Net::FTPServer(3)>,
-L<Net::FTP(3)>,
-L<perl(1)>,
+C<Net::FTPServer(3)>,
+C<Net::FTP(3)>,
+C<perl(1)>,
 RFC 765,
 RFC 959,
 RFC 1579,

@@ -28,11 +28,7 @@ Net::FTPServer::Proxy::FileHandle - Proxy FTP server
 
   use Net::FTPServer::Proxy::FileHandle;
 
-=head1 DESCRIPTION
-
 =head1 METHODS
-
-=over 4
 
 =cut
 
@@ -141,8 +137,6 @@ sub delete
 
 __END__
 
-=back 4
-
 =head1 AUTHORS
 
 Richard Jones (rich@annexia.org).
@@ -153,6 +147,6 @@ Copyright (C) 2003 Richard Jones E<lt>rich@annexia.orgE<gt>
 
 =head1 SEE ALSO
 
-L<Net::FTPServer(3)>, L<perl(1)>
+C<Net::FTPServer(3)>, C<perl(1)>
 
 =cut

@@ -64,8 +64,6 @@ To proxy multiple servers using IP-based virtual hosts, use:
 
 =head1 METHODS
 
-=over 4
-
 =cut
 
 package Net::FTPServer::Proxy::Server;
@@ -153,8 +151,6 @@ sub root_directory_hook
 
 __END__
 
-=back 4
-
 =head1 FILES
 
   /etc/ftpd.conf
@@ -176,6 +172,6 @@ Copyright (C) 2003 Richard Jones E<lt>rich@annexia.orgE<gt>
 
 =head1 SEE ALSO
 
-L<Net::FTPServer(3)>.
+C<Net::FTPServer(3)>.
 
 =cut

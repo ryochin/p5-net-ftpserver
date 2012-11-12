@@ -36,8 +36,6 @@ FTP server with similar functionality to I<wu-ftpd>.
 
 =head1 METHODS
 
-=over 4
-
 =cut
 
 package Net::FTPServer::Full::Server;
@@ -58,6 +56,8 @@ use vars qw(@ISA);
 @ISA = qw(Net::FTPServer);
 
 =pod
+
+=over 4
 
 =item $rv = $self->authentication_hook ($user, $pass, $user_is_anon)
 
@@ -311,7 +311,7 @@ sub root_directory_hook
 
 __END__
 
-=back 4
+=back
 
 =head1 FILES
 
@@ -335,10 +335,10 @@ London, SW6 3EG, UK
 
 =head1 SEE ALSO
 
-L<Net::FTPServer(3)>,
-L<Authen::PAM(3)>,
-L<Net::FTP(3)>,
-L<perl(1)>,
+C<Net::FTPServer(3)>,
+C<Authen::PAM(3)>,
+C<Net::FTP(3)>,
+C<perl(1)>,
 RFC 765,
 RFC 959,
 RFC 1579,

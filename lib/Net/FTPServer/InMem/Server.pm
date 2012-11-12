@@ -38,8 +38,6 @@ C<t/> directory in the distribution).
 
 =head1 METHODS
 
-=over 4
-
 =cut
 
 package Net::FTPServer::InMem::Server;
@@ -111,8 +109,6 @@ sub root_directory_hook
 
 __END__
 
-=back 4
-
 =head1 FILES
 
   /etc/ftpd.conf
@@ -135,6 +131,6 @@ London, SW6 3EG, UK
 
 =head1 SEE ALSO
 
-L<Net::FTPServer(3)>.
+C<Net::FTPServer(3)>.
 
 =cut
