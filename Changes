@@ -1,6 +1,36 @@
 Changes
 =======
 
+Version 1.123
+-------------
+
+Tue Nov 13 03:08:08 UTC 2012    Maintenance release after a long time
+
+BUG FIXES:
+
+* added a workaround to make sure to cause abort by SIGURG in t/240abort.t. [#21261]
+* fixed a bug that MLST command treated DirHandle as FileHandle. [#27640]
+  (thanks to Andrew)
+* fixed a bug that ls -l command doesn't show a directory named '0'. [#29503]
+* fixed a problem that extra large file sizes were not displayed correctly because of integer digit overflow. [#35332]
+  (thanks to Kevin Morga)
+* fixed a problem caused by a Constant.pm internal change, affected to Archive::Zip. [#35698]
+  (thanks to Alexander Bluhm)
+* fixed a problem that Archive::Zip::Member::setLastModFileDateTimeFromUnix() doesn't accept 0. [#35698]
+  (thanks to Alexander Bluhm)
+
+OTHERS:
+
+* maintainer now changed.
+* organized document and package files.
+* fixed pod format errors.
+* new repository: https://github.com/ryochin/p5-net-ftpserver
+
+Version 1.122
+-------------
+
+(No description)
+
 Version 1.121
 -------------
 
