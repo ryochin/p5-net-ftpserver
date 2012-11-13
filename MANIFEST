@@ -6,7 +6,6 @@ bin/proxy-ftpd.pl
 bin/ro-ftpd.pl
 Changes
 COPYING
-devel/Net-FTPServer.spec.PL
 doc/archives.txt
 doc/eg1-psql63.sql
 doc/eg1.sql
@@ -40,7 +39,12 @@ lib/Net/FTPServer/RO/Server.pm
 Makefile.PL
 MANIFEST
 META.yml
-Net-FTPServer.spec.PL
+package/debian/README
+package/debian/changelog
+package/debian/control
+package/debian/copyright
+package/debian/rules
+package/Net-FTPServer.spec.PL
 README
 t/10load.t
 t/110loadinmem.t

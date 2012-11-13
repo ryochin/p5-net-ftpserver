@@ -208,7 +208,7 @@ my @args = (
 	    dist =>
 	    {
 	     COMPRESS => 'gzip --force --best',
-	     PREOP => 'cp Net-FTPServer.spec $(DISTVNAME)',
+#	     PREOP => 'cp Net-FTPServer.spec $(DISTVNAME)',
 	    },
 
 	    clean =>
@@ -218,12 +218,12 @@ my @args = (
 
 	    realclean =>
 	    {
-	     FILES => 'Net-FTPServer.spec',
+#	     FILES => 'Net-FTPServer.spec',
 	    },
 
 	    depend =>
 	    {
-	     dist => 'Net-FTPServer.spec',
+#	     dist => 'Net-FTPServer.spec',
 	     #'Net-FTPServer.spec' => "lib/Net/FTPServer.pm",
 	     #Makefile => "lib/Net/FTPServer.pm",
 	    },
