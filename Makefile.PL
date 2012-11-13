@@ -292,9 +292,9 @@ install ::
 	@if [ ! "${NOCONF}" ]; then \
           mkdir -p $(sysconfdir); \
 	  if [ ! -f $(sysconfdir)/ftpd.conf ]; then \
-	    install -c -m 0644 ftpd.conf $(sysconfdir)/ftpd.conf; \
+	    install -c -m 0644 etc/ftpd.conf $(sysconfdir)/ftpd.conf; \
 	  else \
-	    install -c -m 0644 ftpd.conf $(sysconfdir)/ftpd.conf.new; \
+	    install -c -m 0644 etc/ftpd.conf $(sysconfdir)/ftpd.conf.new; \
 	    echo "Old configuration file $(sysconfdir)/ftpd.conf not overwritten."; \
 	    echo "New configuration file installed as $(sysconfdir)/ftpd.conf.new"; \
 	  fi; \

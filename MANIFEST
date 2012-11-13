@@ -15,7 +15,7 @@ doc/rfcs.txt
 doc/roadmap-1.2.txt
 doc/safesignals.txt
 doc/sharedstate.txt
-ftpd.conf
+etc/ftpd.conf
 lib/Net/FTPServer.pm
 lib/Net/FTPServer/DBeg1/DirHandle.pm
 lib/Net/FTPServer/DBeg1/FileHandle.pm
