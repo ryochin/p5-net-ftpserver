@@ -25,7 +25,7 @@ Net::FTPServer::Proxy::Server - Proxy FTP server
 
 =head1 SYNOPSIS
 
-  proxy-ftpd [-d] [-v] [-p port] [-s] [-S] [-V] [-C conf_file]
+  proxy-ftpd.pl [-d] [-v] [-p port] [-s] [-S] [-V] [-C conf_file]
 
 =head1 DESCRIPTION
 
@@ -150,17 +150,6 @@ sub root_directory_hook
 1 # So that the require or use succeeds.
 
 __END__
-
-=head1 FILES
-
-  /etc/ftpd.conf
-  /usr/lib/perl5/site_perl/5.005/Net/FTPServer.pm
-  /usr/lib/perl5/site_perl/5.005/Net/FTPServer/DirHandle.pm
-  /usr/lib/perl5/site_perl/5.005/Net/FTPServer/FileHandle.pm
-  /usr/lib/perl5/site_perl/5.005/Net/FTPServer/Handle.pm
-  /usr/lib/perl5/site_perl/5.005/Net/FTPServer/Proxy/Server.pm
-  /usr/lib/perl5/site_perl/5.005/Net/FTPServer/Proxy/DirHandle.pm
-  /usr/lib/perl5/site_perl/5.005/Net/FTPServer/Proxy/FileHandle.pm
 
 =head1 AUTHORS
 

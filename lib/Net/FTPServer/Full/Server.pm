@@ -26,7 +26,7 @@ Net::FTPServer::Full::Server - The full FTP server personality
 
 =head1 SYNOPSIS
 
-  ftpd [-d] [-v] [-p port] [-s] [-S] [-V] [-C conf_file]
+  ftpd.sh [-d] [-v] [-p port] [-s] [-S] [-V] [-C conf_file]
 
 =head1 DESCRIPTION
 
@@ -312,17 +312,6 @@ sub root_directory_hook
 __END__
 
 =back
-
-=head1 FILES
-
-  /etc/ftpd.conf
-  /usr/lib/perl5/site_perl/5.005/Net/FTPServer.pm
-  /usr/lib/perl5/site_perl/5.005/Net/FTPServer/DirHandle.pm
-  /usr/lib/perl5/site_perl/5.005/Net/FTPServer/FileHandle.pm
-  /usr/lib/perl5/site_perl/5.005/Net/FTPServer/Handle.pm
-  /usr/lib/perl5/site_perl/5.005/Net/FTPServer/Full/Server.pm
-  /usr/lib/perl5/site_perl/5.005/Net/FTPServer/Full/DirHandle.pm
-  /usr/lib/perl5/site_perl/5.005/Net/FTPServer/Full/FileHandle.pm
 
 =head1 AUTHORS
 

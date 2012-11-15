@@ -26,7 +26,7 @@ Net::FTPServer::DBeg1::Server - The DB example FTP server personality
 
 =head1 SYNOPSIS
 
-  dbeg1-ftpd [-d] [-v] [-p port] [-s] [-S] [-V] [-C conf_file]
+  dbeg1-ftpd.pl [-d] [-v] [-p port] [-s] [-S] [-V] [-C conf_file]
 
 =head1 DESCRIPTION
 
@@ -172,17 +172,6 @@ sub _SITE_USAGE_command
 1 # So that the require or use succeeds.
 
 __END__
-
-=head1 FILES
-
-  /etc/ftpd.conf
-  /usr/lib/perl5/site_perl/5.005/Net/FTPServer.pm
-  /usr/lib/perl5/site_perl/5.005/Net/FTPServer/DirHandle.pm
-  /usr/lib/perl5/site_perl/5.005/Net/FTPServer/FileHandle.pm
-  /usr/lib/perl5/site_perl/5.005/Net/FTPServer/Handle.pm
-  /usr/lib/perl5/site_perl/5.005/Net/FTPServer/DBeg1/Server.pm
-  /usr/lib/perl5/site_perl/5.005/Net/FTPServer/DBeg1/DirHandle.pm
-  /usr/lib/perl5/site_perl/5.005/Net/FTPServer/DBeg1/FileHandle.pm
 
 =head1 AUTHORS
 
