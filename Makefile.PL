@@ -29,6 +29,12 @@ use ExtUtils::MakeMaker;
 # NB. 'status' field is either 'required', for modules which are
 # required, or anything else for modules which are optional.
 
+# OS check
+if( $^O eq 'MSWin32' ){
+    printf STDERR "This module doesn't support your platform $^O.\n";
+    exit 1;
+}
+
 my %modules
   = (
      'Archive::Zip' =>
