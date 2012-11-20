@@ -275,7 +275,7 @@ sub libscan
 sub postamble
   {
     '
-sysconfdir	= /etc
+sysconfdir	= $(DESTDIR)/etc
 
 check-manifest:
 	@for d in `find -type d -name CVS`; \
@@ -290,13 +290,20 @@ check-manifest:
 
 install ::
 	@if [ ! "${NOCONF}" ]; then \
-          mkdir -p $(sysconfdir); \
-	  if [ ! -f $(sysconfdir)/ftpd.conf ]; then \
-	    install -c -m 0644 etc/ftpd.conf $(sysconfdir)/ftpd.conf; \
+	  if [ -w `dirname $(sysconfdir)` ]; then \
+	    mkdir -p $(sysconfdir); \
+	    if [ -w $(sysconfdir) ]; then \
+	      if [ ! -f $(sysconfdir)/ftpd.conf ]; then \
+	        install -c -m 0644 etc/ftpd.conf $(sysconfdir)/ftpd.conf; \
+	        echo "Installing $(sysconfdir)/ftpd.conf"; \
+	      else \
+	        install -c -m 0644 etc/ftpd.conf $(sysconfdir)/ftpd.conf.dist; \
+	        echo "Old configuration file $(sysconfdir)/ftpd.conf not overwritten."; \
+	        echo "New configuration file installed as $(sysconfdir)/ftpd.conf.dist"; \
+	      fi; \
+	    fi; \
 	  else \
-	    install -c -m 0644 etc/ftpd.conf $(sysconfdir)/ftpd.conf.new; \
-	    echo "Old configuration file $(sysconfdir)/ftpd.conf not overwritten."; \
-	    echo "New configuration file installed as $(sysconfdir)/ftpd.conf.new"; \
+	    echo "notice: ftpd.conf was not installed because you don\'t have write permission to $(sysconfdir)."; \
 	  fi; \
 	fi
 	@echo
