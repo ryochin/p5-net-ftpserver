@@ -1,6 +1,19 @@
 Changes
 =======
 
+Version 1.124
+-------------
+
+Thu Nov 22 13:26:09 UTC 2012
+
+IMPROVEMENTS:
+
+* addressed an issue that ftpd.conf had been installed despite lack of write permission to sysconfdir. [#81130]
+  (thanks to Gabor Szabo)
+* added a message that Win32 platform is not supported. [#81136]
+  (thanks to CHORNY)
+* switched to Test::More for better installation process.
+
 Version 1.123
 -------------
 
