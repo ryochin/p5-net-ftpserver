@@ -31,7 +31,8 @@ use ExtUtils::MakeMaker;
 
 # OS check
 if( $^O eq 'MSWin32' ){
-    printf STDERR "This module doesn't support your platform $^O.\n";
+    printf STDERR "No support for OS $^O.\n";
+    #This message should be exact: http://wiki.cpantesters.org/wiki/CPANAuthorNotes
     exit 1;
 }
 
