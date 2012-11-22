@@ -75,9 +75,8 @@ my %modules
      'DBI' =>
      { status => "optional",
        message =>
-       "DBI is missing. This module is required to run the test suite,\n".
-       "and also if you want to run the FTP server against a PostgreSQL\n".
-       "database.\n"
+       "DBI is missing. if you want to run the FTP server against a\n".
+       "PostgreSQL database.\n"
      },
      'Digest::MD5' =>
      { status => "optional",
@@ -116,6 +115,7 @@ my %modules
      'Socket' => { status => "required" },
      'Sys::Hostname' => { status => "required" },
      'Sys::Syslog' => { status => "required" },
+     'Test::More' => { status => "required" },
     );
 
 $| = 1;
@@ -255,6 +255,7 @@ my @args = (
 	     'Socket'		=> '0',
 	     'Sys::Hostname'	=> '0',
 	     'Sys::Syslog'	=> '0',
+	     'Test::More'	=> '0',
 	    },
 	   );
 

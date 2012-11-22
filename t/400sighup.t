@@ -1,14 +1,8 @@
-#!/usr/bin/perl -w
-
 use strict;
-use Test;
+use Test::More tests => 4;
 use FileHandle;
 use IO::Socket;
 use POSIX qw(SIGHUP SIGTERM WNOHANG);
-
-BEGIN {
-  plan tests => 4;
-}
 
 # This test is quite involved because we are going to actually
 # run a separate FTP server process, listening on some high-numbered
@@ -154,3 +148,5 @@ END {
   # Remove the temporary files.
   unlink $config, $invoker;
 }
+
+__END__

@@ -1,14 +1,8 @@
-#!/usr/bin/perl -w
-
 use strict;
-use Test;
+use Test::More tests => 96;
 use POSIX qw(dup2);
 use IO::Handle;
 use FileHandle;
-
-BEGIN {
-  plan tests => 96;
-}
 
 use Net::FTPServer::InMem::Server;
 
@@ -177,3 +171,5 @@ for (my $pass = 1; $pass < 10; ++$pass)
 
 print OUTFD0 "QUIT\r\n";
 $_ = <INFD1>;
+
+__END__

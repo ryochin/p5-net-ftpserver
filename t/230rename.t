@@ -1,14 +1,8 @@
-#!/usr/bin/perl -w
-
 use strict;
-use Test;
+use Test::More tests => 11;
 use POSIX qw(dup2);
 use IO::Handle;
 use FileHandle;
-
-BEGIN {
-  plan tests => 11;
-}
 
 use Net::FTPServer::InMem::Server;
 
@@ -101,3 +95,5 @@ ok (/^226/);
 
 print OUTFD0 "QUIT\r\n";
 $_ = <INFD1>;
+
+__END__

@@ -3265,7 +3265,7 @@ sub _set_rlimit
 	setrlimit (&{$ {BSD::Resource::}{$name}}, $value, $value)
 	  or die "setrlimit: $!";
       }
-    else
+    elsif (not $ENV{NET_FTPSERVER_NO_BSD_RESOURCE_WARNING})
       {
 	warn
 	  "Resource limit $name cannot be set. This may be because ",

@@ -46,6 +46,7 @@ package/debian/copyright
 package/debian/rules
 package/Net-FTPServer.spec.PL
 README
+t/00version.t
 t/10load.t
 t/110loadinmem.t
 t/120greeting.t
