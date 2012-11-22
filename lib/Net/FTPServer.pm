@@ -2130,6 +2130,8 @@ consult the author for more information.
 
 package Net::FTPServer;
 
+use 5.005;
+
 use strict;
 
 use vars qw($VERSION $RELEASE);
