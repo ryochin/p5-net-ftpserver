@@ -1,14 +1,8 @@
-#!/usr/bin/perl -w
-
 use strict;
-use Test;
+use Test::More tests => 4;
 use POSIX qw(dup2);
 use IO::Handle;
 use FileHandle;
-
-BEGIN {
-  plan tests => 4;
-}
 
 use Net::FTPServer::InMem::Server;
 
@@ -52,3 +46,5 @@ sleep 3;
 # Expect timeout status.
 $_ = <INFD1>;
 ok (/^421/);
+
+__END__

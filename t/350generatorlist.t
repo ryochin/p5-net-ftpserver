@@ -1,14 +1,8 @@
-#!/usr/bin/perl -w
-
 use strict;
-use Test;
+use Test::More tests => 20;
 use POSIX qw(dup2);
 use IO::Handle;
 use FileHandle;
-
-BEGIN {
-  plan tests => 20;
-}
 
 use Net::FTPServer::InMem::Server;
 
@@ -201,3 +195,5 @@ sub download_file
     # OK!
     return 1;
   }
+
+__END__

@@ -1,14 +1,8 @@
-#!/usr/bin/perl -w
-
 use strict;
-use Test;
+use Test::More tests => 16;
 use POSIX qw(dup2);
 use IO::Handle;
 use FileHandle;
-
-BEGIN {
-  plan tests => 16;
-}
 
 use Net::FTPServer::InMem::Server;
 
@@ -122,3 +116,5 @@ foreach my $mode ('A', 'I')
 
 print OUTFD0 "QUIT\r\n";
 $_ = <INFD1>;
+
+__END__

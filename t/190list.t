@@ -1,14 +1,8 @@
-#!/usr/bin/perl -w
-
 use strict;
-use Test;
+use Test::More tests => 82;
 use POSIX qw(dup2);
 use IO::Handle;
 use FileHandle;
-
-BEGIN {
-  plan tests => 82;
-}
 
 use Net::FTPServer::InMem::Server;
 
@@ -284,3 +278,5 @@ sub upload
     $_ = <INFD1>;
     return /^226/;
   }
+
+__END__

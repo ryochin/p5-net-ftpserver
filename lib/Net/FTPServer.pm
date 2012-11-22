@@ -27,7 +27,7 @@ Net::FTPServer - A secure, extensible and configurable Perl FTP server
 
 =head1 SYNOPSIS
 
-  ftpd [--help] [-d] [-v] [-p port] [-s] [-S] [-V] [-C conf_file]
+  ftpd.sh [--help] [-d] [-v] [-p port] [-s] [-S] [-V] [-C conf_file]
        [-P pidfile] [-o option=value]
 
 =head1 DESCRIPTION
@@ -2134,7 +2134,7 @@ use strict;
 
 use vars qw($VERSION $RELEASE);
 
-$VERSION = '1.123';
+$VERSION = '1.124';
 $RELEASE = 1;
 
 # Non-optional modules.
@@ -3265,7 +3265,7 @@ sub _set_rlimit
 	setrlimit (&{$ {BSD::Resource::}{$name}}, $value, $value)
 	  or die "setrlimit: $!";
       }
-    else
+    elsif (not $ENV{NET_FTPSERVER_NO_BSD_RESOURCE_WARNING})
       {
 	warn
 	  "Resource limit $name cannot be set. This may be because ",
@@ -8242,15 +8242,7 @@ and bugs.
 
 =head1 DEPENDENCY
 
-IO::Dir, IO-Scalar
-
-=head1 FILES
-
-  /etc/ftpd.conf
-  /usr/lib/perl5/site_perl/5.005/Net/FTPServer.pm
-  /usr/lib/perl5/site_perl/5.005/Net/FTPServer/DirHandle.pm
-  /usr/lib/perl5/site_perl/5.005/Net/FTPServer/FileHandle.pm
-  /usr/lib/perl5/site_perl/5.005/Net/FTPServer/Handle.pm
+IO::Dir, IO::stringy
 
 =head1 AUTHORS
 
@@ -8305,5 +8297,7 @@ RFC 2428,
 RFC 2577,
 RFC 2640,
 Extensions to FTP Internet Draft draft-ietf-ftpext-mlst-NN.txt.
+L<Net::FTPServer::XferLog>
+L<Test::FTP::Server>
 
 =cut

@@ -1,14 +1,8 @@
-#!/usr/bin/perl -w
-
 use strict;
-use Test;
+use Test::More tests => 1;
 use POSIX qw(dup2);
 use IO::Handle;
 use FileHandle;
-
-BEGIN {
-  plan tests => 1;
-}
 
 use Net::FTPServer::InMem::Server;
 
@@ -73,3 +67,5 @@ my $ok = 1;
 
 # Old STDIN, STDOUT now restored.
 ok ($ok);
+
+__END__

@@ -38,9 +38,86 @@ Missing features:
 
 PREREQUISITES
 -------------
-required:  perl >= 5.00503  Getopt::Long     This is usually supplied as part of the                   basic Perl package.  IO               This is also normally included in the                   basic Perl package, but make sure you                   have a pretty recent version.  IO-stringy       This is now required by the main server.                   Make sure you have at least version 1.220                   from CPAN which includes some important                   bug fixes.optional:  Archive::Zip     If you want to allow users to create ZIP                   files from directories on the fly (so-called                   "archive mode"), you need this module.  Authen::PAM      If you want to do PAM authentication (eg.                   you have Red Hat Linux or Solaris).  BSD::Resource    If you want resource limits to avoid certain                   types of denial of service (DoS) attack.  Compress::Zlib   If you want to allow users to create ZIP                   files from directories on the fly (so-called                   "archive mode"), you need this module.  Digest::MD5      If you want the SITE CHECKSUM command                   to work correctly.  File::Sync       Needed for SITE SYNC command.  bzip2            If an external "bzip2" program is available,                   it can be used to create archives                   automatically.  gzip             If an external "gzip" program is available,                   it can be used to create archives                   automatically.  uuencode         If an external "uuencode" program is                   available, it can be used to create                   uuencoded archives automatically.INSTALLATION
+
+required:
+
+  perl >= 5.00503
+
+  IO               This is also normally included in the
+                   basic Perl package, but make sure you
+                   have a pretty recent version.
+
+  IO::stringy      This is now required by the main server.
+                   Make sure you have at least version 1.220
+                   from CPAN which includes some important
+                   bug fixes.
+
+optional:
+
+  Archive::Zip     If you want to allow users to create ZIP
+                   files from directories on the fly (so-called
+                   "archive mode"), you need this module.
+
+  Authen::PAM      If you want to do PAM authentication (eg.
+                   you have Red Hat Linux or Solaris).
+
+  BSD::Resource    If you want resource limits to avoid certain
+                   types of denial of service (DoS) attack.
+
+  Compress::Zlib   If you want to allow users to create ZIP
+                   files from directories on the fly (so-called
+                   "archive mode"), you need this module.
+
+  Digest::MD5      If you want the SITE CHECKSUM command
+                   to work correctly.
+
+  File::Sync       Needed for SITE SYNC command.
+
+  bzip2            If an external "bzip2" program is available,
+                   it can be used to create archives
+                   automatically.
+
+  gzip             If an external "gzip" program is available,
+                   it can be used to create archives
+                   automatically.
+
+  uuencode         If an external "uuencode" program is
+                   available, it can be used to create
+                   uuencoded archives automatically.
+
+
+INSTALLATION
 ------------
-To compile:	perl Makefile.PL	make	make testTo install (usually as root):	make installYou can override where the configuration file will goby specifying the SYSCONFDIR setting.  /etc is the default.Or to avoid installing a configuration altogether use"make NOCONF=1 install" instead.The documentation should be automatically installed. Do:	man Net::FTPServeror if you don't have a working man pages system, do:	pod2man lib/Net/FTPServer.pm | nroff -man | moreRead the section "INSTALLING AND RUNNING THE SERVER" to find out howto change the configuration file to suit your local situation, and howto start and stop the server.CONFIGURATION AND DOCUMENTATION
+
+To compile:
+
+	perl Makefile.PL
+	make
+	make test
+
+To install (usually as root):
+
+	make install
+
+You can override where the configuration file will go
+by specifying the SYSCONFDIR setting.  /etc is the default.
+Or to avoid installing a configuration altogether use
+"make NOCONF=1 install" instead.
+
+The documentation should be automatically installed. Do:
+
+	man Net::FTPServer
+
+or if you don't have a working man pages system, do:
+
+	pod2man lib/Net/FTPServer.pm | nroff -man | more
+
+Read the section "INSTALLING AND RUNNING THE SERVER" to find out how
+to change the configuration file to suit your local situation, and how
+to start and stop the server.
+
+
+CONFIGURATION AND DOCUMENTATION
 -------------------------------
 
 All other documentation is in the Net::FTPServer(3) man page. After
@@ -71,3 +148,4 @@ CREDITS
 
 Copyright (C) 2000 Biblio@Tech Ltd., Unit 2-3, 50 Carnwath Road, London, SW6 3EG, UK.
 Copyright (C) 2000-2003 Richard Jones <rich@annexia.org> and other contributors.
+

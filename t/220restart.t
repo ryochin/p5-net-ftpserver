@@ -1,14 +1,8 @@
-#!/usr/bin/perl -w
-
 use strict;
-use Test;
+use Test::More tests => 18;
 use POSIX qw(dup2);
 use IO::Handle;
 use FileHandle;
-
-BEGIN {
-  plan tests => 18;
-}
 
 use Net::FTPServer::InMem::Server;
 
@@ -174,3 +168,5 @@ sub download_and_check
 
     return $expected_data eq $actual_data;
   }
+
+__END__

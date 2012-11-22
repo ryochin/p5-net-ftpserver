@@ -29,6 +29,12 @@ use ExtUtils::MakeMaker;
 # NB. 'status' field is either 'required', for modules which are
 # required, or anything else for modules which are optional.
 
+# OS check
+if( $^O eq 'MSWin32' ){
+    printf STDERR "This module doesn't support your platform $^O.\n";
+    exit 1;
+}
+
 my %modules
   = (
      'Archive::Zip' =>
@@ -69,9 +75,8 @@ my %modules
      'DBI' =>
      { status => "optional",
        message =>
-       "DBI is missing. This module is required to run the test suite,\n".
-       "and also if you want to run the FTP server against a PostgreSQL\n".
-       "database.\n"
+       "DBI is missing. if you want to run the FTP server against a\n".
+       "PostgreSQL database.\n"
      },
      'Digest::MD5' =>
      { status => "optional",
@@ -110,6 +115,7 @@ my %modules
      'Socket' => { status => "required" },
      'Sys::Hostname' => { status => "required" },
      'Sys::Syslog' => { status => "required" },
+     'Test::More' => { status => "required" },
     );
 
 $| = 1;
@@ -249,6 +255,7 @@ my @args = (
 	     'Socket'		=> '0',
 	     'Sys::Hostname'	=> '0',
 	     'Sys::Syslog'	=> '0',
+	     'Test::More'	=> '0',
 	    },
 	   );
 
@@ -275,7 +282,7 @@ sub libscan
 sub postamble
   {
     '
-sysconfdir	= /etc
+sysconfdir	= $(DESTDIR)/etc
 
 check-manifest:
 	@for d in `find -type d -name CVS`; \
@@ -290,13 +297,20 @@ check-manifest:
 
 install ::
 	@if [ ! "${NOCONF}" ]; then \
-          mkdir -p $(sysconfdir); \
-	  if [ ! -f $(sysconfdir)/ftpd.conf ]; then \
-	    install -c -m 0644 etc/ftpd.conf $(sysconfdir)/ftpd.conf; \
+	  if [ -w `dirname $(sysconfdir)` ]; then \
+	    mkdir -p $(sysconfdir); \
+	    if [ -w $(sysconfdir) ]; then \
+	      if [ ! -f $(sysconfdir)/ftpd.conf ]; then \
+	        install -c -m 0644 etc/ftpd.conf $(sysconfdir)/ftpd.conf; \
+	        echo "Installing $(sysconfdir)/ftpd.conf"; \
+	      else \
+	        install -c -m 0644 etc/ftpd.conf $(sysconfdir)/ftpd.conf.dist; \
+	        echo "Old configuration file $(sysconfdir)/ftpd.conf not overwritten."; \
+	        echo "New configuration file installed as $(sysconfdir)/ftpd.conf.dist"; \
+	      fi; \
+	    fi; \
 	  else \
-	    install -c -m 0644 etc/ftpd.conf $(sysconfdir)/ftpd.conf.new; \
-	    echo "Old configuration file $(sysconfdir)/ftpd.conf not overwritten."; \
-	    echo "New configuration file installed as $(sysconfdir)/ftpd.conf.new"; \
+	    echo "notice: ftpd.conf was not installed because you don\'t have write permission to $(sysconfdir)."; \
 	  fi; \
 	fi
 	@echo

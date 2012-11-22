@@ -26,7 +26,7 @@ Net::FTPServer::RO::Server - The anonymous read-only FTP server personality
 
 =head1 SYNOPSIS
 
-  ftpd [-d] [-v] [-p port] [-s] [-S] [-V] [-C conf_file]
+  ro-ftpd.pl [-d] [-v] [-p port] [-s] [-S] [-V] [-C conf_file]
 
 =head1 DESCRIPTION
 
@@ -134,17 +134,6 @@ sub root_directory_hook
 __END__
 
 =back
-
-=head1 FILES
-
-  /etc/ftpd.conf
-  /usr/lib/perl5/site_perl/5.005/Net/FTPServer.pm
-  /usr/lib/perl5/site_perl/5.005/Net/FTPServer/DirHandle.pm
-  /usr/lib/perl5/site_perl/5.005/Net/FTPServer/FileHandle.pm
-  /usr/lib/perl5/site_perl/5.005/Net/FTPServer/Handle.pm
-  /usr/lib/perl5/site_perl/5.005/Net/FTPServer/RO/Server.pm
-  /usr/lib/perl5/site_perl/5.005/Net/FTPServer/RO/DirHandle.pm
-  /usr/lib/perl5/site_perl/5.005/Net/FTPServer/RO/FileHandle.pm
 
 =head1 AUTHORS
 
