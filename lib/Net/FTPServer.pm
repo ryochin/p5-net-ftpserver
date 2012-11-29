@@ -2130,11 +2130,13 @@ consult the author for more information.
 
 package Net::FTPServer;
 
+use 5.005;
+
 use strict;
 
 use vars qw($VERSION $RELEASE);
 
-$VERSION = '1.124';
+$VERSION = '1.125';
 $RELEASE = 1;
 
 # Non-optional modules.

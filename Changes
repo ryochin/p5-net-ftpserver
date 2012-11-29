@@ -1,6 +1,19 @@
 Changes
 =======
 
+Version 1.125
+-------------
+
+Thu Nov 29 08:10:47 UTC 2012
+
+IMPROVEMENTS:
+
+* supported cpantesters and added other small changes.
+  (thanks to Alexandr Ciornii)
+* tweaked t/240abort.t to skip when BSD::Resource is not installed
+  to avoid test errors on OpenBSD/Solaris at cpantesters.
+* improved an error message when using chroot feature by non-root users with Full personality.
+
 Version 1.124
 -------------
 

@@ -1,8 +1,19 @@
 use strict;
-use Test::More tests => 16;
+use Test::More;
 use POSIX qw(dup2);
 use IO::Handle;
 use FileHandle;
+
+BEGIN {
+  eval "use BSD::Resource";
+  unless (exists $INC{"BSD/Resource.pm"})
+    {
+      plan skip_all => "BSD::Resource not installed";
+      exit 0;
+    }
+}
+
+plan tests => 16;
 
 use Net::FTPServer::InMem::Server;
 
