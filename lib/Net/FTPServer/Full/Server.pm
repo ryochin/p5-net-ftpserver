@@ -272,8 +272,17 @@ sub user_login_hook
 	    $root_directory =~ s/%U/$user/ge;
 	    $root_directory =~ s/%%/%/g;
 
-	    chroot $root_directory
-	      or die "cannot chroot: $root_directory: $!";
+	    if ($< == 0)
+	      {
+		chroot $root_directory
+		  or die "cannot chroot: $root_directory: $!";
+	      }
+	    else
+	      {
+		chroot $root_directory
+		  or die "cannot chroot: $root_directory: $!"
+		    . " (you need root privilege to use chroot feature)";
+	      }
 	  }
       }
     # For anonymous users, chroot to ftp directory.
@@ -283,7 +292,15 @@ sub user_login_hook
 	  = getpwnam "ftp"
 	    or die "no ftp user in password file";
 
-	chroot $homedir or die "cannot chroot: $homedir: $!";
+	if ($< == 0)
+	  {
+	    chroot $homedir or die "cannot chroot: $homedir: $!";
+	  }
+	else
+	  {
+	    chroot $homedir or die "cannot chroot: $homedir: $!"
+	      . " (you need root privilege to use chroot feature)";
+	  }
       }
 
     # We don't allow users to relogin, so completely change to
