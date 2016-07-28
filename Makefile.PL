@@ -93,7 +93,7 @@ my %modules
        "File::Sync is missing. The SITE SYNC command will not work.\n"
      },
      'File::Temp' =>
-     { status => "option",
+     { status => "optional",
        message =>
        "File::Temp is missing. This is required for the proxy server.\n"
      },
@@ -106,6 +106,12 @@ my %modules
      'IO::Seekable' => { status => "required" },
      'IO::Select' => { status => "required", package => "IO" },
      'IO::Socket' => { status => "required", package => "IO" },
+     'IO::Socket::SSL' => 
+     { status => "optional", 
+       message =>
+       "IO::Socket::SSL is missing.  This module is required if you\n".
+       "want to support encrypted FTP connections (ftps).\n"
+     },
      'IPC::Open2' => { status => "required" },
      'Net::FTP' =>
      { status => "optional",

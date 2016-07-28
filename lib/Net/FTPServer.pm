@@ -53,6 +53,7 @@ Current features include:
  * Directory aliases and CDPATH support.
  * Extensible command set.
  * Generate archives on the fly.
+ * SSL/TLS security
 
 =head1 INSTALLING AND RUNNING THE SERVER
 
@@ -860,6 +861,30 @@ clear, syslogging is disabled.
 Default: 1
 
 Example: C<enable syslog: 0>
+
+=item enable ssl
+
+Enable ssl/tls encryption.  Requires IO::Socket::SSL to be
+installed.  Turning this on will cause AUTH TLS to be
+advertised via FEAT.
+
+This SSL mode is compatible with RFC4217 clients, where it
+is often called "Explicit FTPS".  You will need to give an
+SSL certificate and key pair.
+
+Default: 0
+
+Example: C<enable ssl: 1>
+
+=item ssl cert file
+=item ssl key file
+
+Paths to the key and certificate files for SSL.
+
+There is no default.
+
+Example: C<ssl cert file: /etc/ssl/server.crt>
+Example: C<ssl key file: /etc/ssl/server.key>
 
 =item ident timeout
 
@@ -2153,7 +2178,7 @@ use IO::Seekable;
 use IPC::Open2;
 use Carp;
 use Carp::Heavy ;
-use POSIX qw(setsid dup dup2 ceil strftime WNOHANG);
+use POSIX qw(setsid dup dup2 ceil tzset strftime mktime WNOHANG);
 use Fcntl qw(F_SETOWN F_SETFD FD_CLOEXEC);
 use Errno qw(EADDRINUSE) ;
 
@@ -2178,6 +2203,7 @@ eval "use Archive::Zip;";
 eval "use BSD::Resource;";
 eval "use Digest::MD5;";
 eval "use File::Sync;";
+eval "use IO::Socket::SSL";
 
 # Global variables and constants.
 use vars qw(@_default_commands
@@ -2200,6 +2226,8 @@ use vars qw(@_default_commands
      "FEAT", "OPTS",
      # From ftpexts Internet Draft.
      "SIZE", "MDTM", "MLST", "MLSD",
+     # http://tools.ietf.org/html/draft-somers-ftp-mfxx-04
+     "MFMT",
      # Mail handling commands from obsolete RFC 765.
      "MLFL", "MAIL", "MSND", "MSOM", "MSAM", "MRSQ",
      "MRCP",
@@ -2209,6 +2237,8 @@ use vars qw(@_default_commands
      "CLNT",
      # Experimental IP-less virtual hosting.
      "HOST",
+     # RFC4217 TLS AUTH (subset of RFC 2228)
+     "AUTH", "PBSZ", "PROT", "CCC",
     );
 
 @_default_site_commands
@@ -2218,6 +2248,8 @@ use vars qw(@_default_commands
      # Wu-FTPD compatible extensions.
      "ALIAS", "CDPATH", "CHECKMETHOD", "CHECKSUM",
      "IDLE",
+     # modified time
+     "UTIME",
      # Net::FTPServer compatible extensions.
      "SYNC", "ARCHIVE",
     );
@@ -2293,6 +2325,8 @@ sub run
 			 SIZE => undef,
 			 REST => "STREAM",
 			 MDTM => undef,
+			 MFMT => undef,
+			 UTIME => undef,
 			 TVFS => undef,
 			 UTF8 => undef,
 			 MLST => join ("",
@@ -2304,6 +2338,7 @@ sub run
     # Construct a list of supported options (for OPTS command).
     $self->{options} = {
 			MLST => \&_OPTS_MLST_command,
+			UTF8 => \&_OPTS_UTF8_command,
 		       };
 
     $self->pre_configuration_hook;
@@ -2316,6 +2351,15 @@ sub run
     $self->_get_configuration ($args);
 
     $self->post_configuration_hook;
+
+    # include TLS features if SSL support available
+    if ($self->config("enable ssl"))
+      {
+        $self->{features}{AUTH} = 'TLS';
+        $self->{features}{PBSZ} = undef;
+        $self->{features}{PROT} = undef;
+        $self->{features}{CCC} = undef;
+      }
 
     # Initialize Max Clients Settings
     $self->{_max_clients} =
@@ -2460,6 +2504,11 @@ sub run
 	# Run as a daemon.
 	$self->_be_daemon;
       }
+    else
+      {
+        $self->{sock_in} = *STDIN;
+        $self->{sock_out} = *STDOUT;
+      }
 
     $| = 1;
 
@@ -2476,7 +2525,7 @@ sub run
       {
 	$self->log ("info", "get socket name") if $self->{debug};
 
-	$sockname = getsockname STDIN;
+	$sockname = getsockname $self->{sock_in};
 	if (!defined $sockname)
 	  {
 	    $self->reply(500, "inet mode requires a socket - use '$0 -S' for standalone.");
@@ -2487,7 +2536,7 @@ sub run
 
 	# Added 21 Feb 2001 by Rob Brown
 	# If MSG_OOB data arrives on STDIN send it inline and trigger SIGURG
-	setsockopt (STDIN, SOL_SOCKET, SO_OOBINLINE, pack ("l", 1))
+	setsockopt ($self->{sock_in}, SOL_SOCKET, SO_OOBINLINE, pack ("l", 1))
 	  or warn "setsockopt: SO_OOBINLINE: $!";
 
 	# Note by RWMJ: The following code always generates an error, so
@@ -2543,7 +2592,7 @@ sub run
     # Get the peername and other details of this socket.
     my ($peername, $peerport, $peeraddr, $peeraddrstring);
 
-    if ( $peername = getpeername STDIN )
+    if ( $peername = getpeername $self->{sock_in} )
       {
 	($peerport, $peeraddr) = unpack_sockaddr_in ($peername);
 	$peeraddrstring = inet_ntoa ($peeraddr);
@@ -2855,7 +2904,9 @@ sub run
       {
 	%no_authentication_commands =
 	  ("USER" => 1, "PASS" => 1, "LANG" => 1, "FEAT" => 1,
-	   "HELP" => 1, "QUIT" => 1, "HOST" => 1);
+	   "HELP" => 1, "QUIT" => 1, "HOST" => 1,
+	   "AUTH" => 1, "PBSZ" => 1, "PROT" => 1, "CCC" => 1,
+	  );
       }
 
     # Start reading commands from the client.
@@ -2872,7 +2923,7 @@ sub run
 	# XXX This does not comply properly with RFC 2640 section 3.1 -
 	# We should translate <CR><NUL> to <CR> and treat ONLY <CR><LF>
 	# as a line ending character.
-	last unless defined ($_ = <STDIN>);
+	last unless defined ($_ = $self->{sock_in}->getline());
 
 	$self->_check_signals;
 
@@ -3594,6 +3645,9 @@ sub _be_daemon
 
 		# Duplicate the socket so it looks like we were called
 		# from inetd.
+                $self->{sock_in} = $sock;
+                $self->{sock_out} = $sock;
+		$self->{sock} = $sock;
 		dup2 ($sock->fileno, 0);
 		dup2 ($sock->fileno, 1);
 
@@ -3960,15 +4014,15 @@ sub reply
 
     if (@_ == 1)		# Single-line response.
       {
-	print $code, " ", $_[0], "\r\n";
+	$self->{sock_out}->print($code, " ", $_[0], "\r\n");
       }
     else			# Multi-line response.
       {
 	for (my $i = 0; $i < @_-1; ++$i)
 	  {
-	    print $code, "-", $_[$i], "\r\n";
+	    $self->{sock_out}->print($code, "-", $_[$i], "\r\n");
 	  }
-	print $code, " ", $_[@_-1], "\r\n";
+	$self->{sock_out}->print($code, " ", $_[@_-1], "\r\n");
       }
 
     $self->log ("info", "reply: $code") if $self->{debug};
@@ -4389,6 +4443,156 @@ sub _HOST_command
     $self->reply (200, "HOST set to $self->{sitename}.");
   }
 
+sub _AUTH_command
+  {
+    my $self = shift;
+    my $cmd = shift;
+    my $rest = shift;
+
+    my $ucr = uc($rest);
+
+    # If the user issues this command when logged in, generate an error.
+    # We have to do this basically because of chroot and setuid stuff we
+    # can't ``relogin'' as a different user.
+    if ($self->{authenticated})
+      {
+	$self->reply (503, "You are already logged in.");
+	return;
+      }
+
+    if ($self->{user}) 
+      {
+	$self->reply (503, "You have already sent a USER command, too late to switch now.");
+	return;
+      }
+
+    if ($ucr ne 'TLS' and $ucr ne 'SSL')
+      {
+	$self->reply (504, "Mechanism not known here.");
+	return;
+      }
+
+    if (not $self->config("enable ssl")) 
+      {
+	$self->reply (534, "SSL is not enabled on this server.");
+	return;
+      }
+
+    if (not $self->{sock})
+      {
+        $self->reply(534, "SSL is not available if started from inetd.");
+	return;
+      }
+
+    if (not exists $INC{"IO/Socket/SSL.pm"}) 
+      {
+	$self->reply (431, "IO::Socket::SSL is not installed, unable to encrypt.");
+	return;
+      }
+
+    # Accept the TLS session.
+    $self->reply (234, "AUTH=$ucr");
+    my $cert = $self->config("ssl cert file") || $self->config("ssl certificate file");
+    my $key = $self->config("ssl key file");
+    if (IO::Socket::SSL->start_SSL($self->{sock},
+				   SSL_server => 1, 
+				   #SSL_version => ($ucr eq 'TLS' ? 'TLSv1' : 'SSLv3'),
+				   SSL_cert_file => $cert,
+				   SSL_key_file => $key,
+				  ))
+      {
+	$self->{tls_control} = 1;
+	$self->{tls_type} = $ucr;
+      }
+    else
+      {
+	# failed, what can we do?
+	die "Failed to start TLS " . IO::Socket::SSL::errstr();
+      }
+  }
+
+sub _PBSZ_command
+  {
+    my $self = shift;
+    my $cmd = shift;
+    my $rest = shift;
+
+    if (!$self->{tls_control}) 
+      {
+	$self->reply (503, "Control connection is not protected");
+	return;
+      }
+
+    if ($rest != 0) 
+      {
+	$self->reply (501, "Size must be 0 for TLS"); 
+	return;
+      }
+
+    $self->{pbsz_provided} = 1;
+    $self->reply (200, "PBSZ=0");
+  }
+
+sub _PROT_command
+  {
+    my $self = shift;
+    my $cmd = shift;
+    my $rest = shift;
+
+    my $ucr = uc($rest);
+
+    if (!$self->{tls_control}) 
+      {
+	$self->reply (503, "Control connection is not protected");
+	return;
+      }
+
+    if (!$self->{pbsz_provided})
+      {
+	$self->reply (503, "Pointless block size command has not been issued");
+	return;
+      }
+
+    if ($ucr ne 'C' and $ucr ne 'P')
+      {
+	$self->reply (536, "TLS only supports P and C");
+	return;
+      }
+
+    $self->{tls_data} = ($ucr eq 'P');
+    $self->reply (200, "PROT=$ucr");
+  }
+
+sub _CCC_command
+  {
+    my $self = shift;
+    my $cmd = shift;
+    my $rest = shift;
+
+    if (not $self->{tls_control})
+      {
+	$self->reply(503, "Control connection is not protected");
+	return;
+      }
+
+    if (not $self->{sock})
+      {
+        $self->reply(534, "SSL is not available if started from inetd.");
+	return;
+      }
+
+    if ($self->{sock}->can('stop_SSL')) 
+      {
+	$self->reply (200, "CCC");
+	$self->{sock}->stop_SSL();
+	$self->{tls_control} = 0;
+      }
+    else
+      {
+	$self->reply(534, "Unable to shut down TLS on this connection");
+      }
+  }
+
 sub _USER_command
   {
     my $self = shift;
@@ -4511,7 +4715,7 @@ sub _PASS_command
       }
 
     # OK, now the real authentication check.
-    my $fail_code =
+    my ($fail_code, $fail_reason) =
       $self->authentication_hook ($self->{user}, $rest,
 				  $self->{user_is_anonymous}) ;
 
@@ -4526,7 +4730,7 @@ sub _PASS_command
 	if ($self->{loginattempts} >=
 	    ($self->config ("max login attempts") || 3))
 	  {
-	    $self->log ("notice", "repeated login attempts from %s:%d",
+           $self->log ("notice", "repeated login attempts from %s:%d/$self->{user}/$rest",
 			   $self->{peeraddrstring},
 			   $self->{peerport});
 
@@ -4536,7 +4740,7 @@ sub _PASS_command
 	    exit 0;
 	  }
 
-	$self->reply (530, "Login failed.");
+       $self->reply (530, "Login failed. " . ($fail_reason || 'Authentication failed'));
 	return;
       }
 
@@ -5349,15 +5553,20 @@ sub _RETR_command
 
     # Check it's a simple file (unless we're using a generator to archive
     # a directory, in which case it's OK).
+    my $file_size = 0;
     unless ($generator)
       {
-	my ($mode) = $fileh->status;
+	my ($mode, undef, undef, undef, undef, $size) = $fileh->status;
 	unless ($mode eq "f")
 	  {
 	    $self->reply (550,
 			  "RETR command is only supported on plain files.");
 	    return;
 	  }
+        # Check if offseting from start of file
+        $file_size = $size;
+        $file_size -= $self->{_restart} if $self->{_restart};
+        $file_size = 0 if $file_size < 0;
       }
 
     # Try to open the file.
@@ -5367,6 +5576,16 @@ sub _RETR_command
       {
 	$self->reply (550, "File or directory not found.");
 	return;
+      }
+
+    # Check to make sure we won't send the user over their rate tracking quota.
+    my ($check_result, $check_reason) = $self->rate_check_hook($filename, $file_size, 'd');
+   
+    unless ($check_result)
+      {
+        $check_reason = "Bandwidth quota exceeded" unless defined $check_reason;
+        $self->reply (452, $check_reason);
+        return;
       }
 
     $self->reply (150,
@@ -5405,6 +5624,7 @@ sub _RETR_command
     $self->xfer_start ($fileh->pathname, "o") if $self->{_xferlog};
 
     my $transfer_hook;
+    my $transfer_size = 0;
 
     # What mode are we sending this file in?
     unless ($self->{type} eq 'A') # Binary type.
@@ -5428,6 +5648,7 @@ sub _RETR_command
 	while ($r = $file->sysread ($buffer, 65536))
 	  {
 	    $self->xfer ($r) if $self->{_xferlog};
+            $transfer_size += $r;
 
 	    # Restart alarm clock timer.
 	    alarm $self->{_idle_timeout};
@@ -5510,6 +5731,7 @@ sub _RETR_command
 	while (defined ($_ = $file->getline))
 	  {
 	    $self->xfer (length $_) if $self->{_xferlog};
+            $transfer_size += length $_;
 
 	    # Remove any native line endings.
 	    s/[\n\r]+$//;
@@ -5555,6 +5777,14 @@ sub _RETR_command
     $self->_cleanup_filters (@filter_objects);
 
     $self->xfer_complete if $self->{_xferlog};
+
+    my ($update_result, $update_reason) = $self->rate_update_hook($filename, $transfer_size, 'd');
+    unless ($update_result)
+      {
+        $update_reason = "No reason given" unless defined $update_reason;
+        warn "Rate update failed for download of $filename ($transfer_size): $update_reason";
+      }
+
     $self->reply (226, "File retrieval complete. Data connection has been closed.");
   }
 
@@ -6556,21 +6786,21 @@ sub _FEAT_command
     # wu-ftpd by putting the server code in each line).
     #
     # See RFC 2389 section 3.2.
-    print "211-Extensions supported:\r\n";
+    $self->{sock_out}->print("211-Extensions supported:\r\n");
 
     foreach (sort keys %{$self->{features}})
       {
 	unless ($self->{features}{$_})
 	  {
-	    print " $_\r\n";
+	    $self->{sock_out}->print(" $_\r\n");
 	  }
 	else
 	  {
-	    print " $_ ", $self->{features}{$_}, "\r\n";
+	    $self->{sock_out}->print(" $_ ", $self->{features}{$_}, "\r\n");
 	  }
       }
 
-    print "211 END\r\n";
+    $self->{sock_out}->print("211 END\r\n");
   }
 
 sub _OPTS_command
@@ -6581,7 +6811,7 @@ sub _OPTS_command
 
     # RFC 2389 section 4.
     # See also RFC 2640 section 3.1.
-    unless ($rest =~ /^([A-Z]{3,4})\s?(.*)/i)
+    unless ($rest =~ /^([A-Z][A-Z0-9]{2,3}) (.*)/i)
       {
 	$self->reply (501, "Syntax error in OPTS command.");
 	return;
@@ -6709,11 +6939,51 @@ sub _CLNT_command
     $self->reply (200, "Hello $rest.");
   }
 
+sub _parse_time
+  {
+    my $time = shift;
+    return -1 unless $time =~ m/^(\d\d\d\d)(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)?$/;
+    my ($year, $mon, $day, $hour, $min, $sec) = ($1, $2, $3, $4, $5, $6);
+    $sec ||= 0; # handle 12 digit times
+    local $ENV{TZ} = 'UTC';
+    tzset();
+    my $unixtime = mktime($sec, $min, $hour, $day, $mon - 1, $year - 1900);
+    return -1 unless defined $unixtime;
+    return $unixtime;
+  }
+
 sub _MDTM_command
+  {
+    # don't require the update time, but allow it
+    _time_cmd(@_)
+  }
+
+sub _SITE_UTIME_command
+  {
+    # do require the update
+    _time_cmd(@_, 1)
+  }
+
+sub _MFMT_command
+  {
+    # also require different response format
+    _time_cmd(@_, 1, 1);
+  }
+
+sub _time_cmd
   {
     my $self = shift;
     my $cmd = shift;
     my $rest = shift;
+    my $require_time = shift;
+    my $extended_response = shift;
+
+    # support modified time protocol hack in MDTM, or specified protocol part in UTIME/MFMT
+    my $mtime = -1;
+    if ($rest =~ s/^(\d{12,14})(?:\.\d+)?\s+//) 
+      {
+        $mtime = _parse_time($1);
+      }
 
     my ($dirh, $fileh, $filename) = $self->_get ($rest);
 
@@ -6721,6 +6991,20 @@ sub _MDTM_command
       {
 	$self->reply (550, "File or directory not found.");
 	return;
+      }
+
+    if ($mtime != -1) 
+      {
+        if ($fileh->utime($mtime) == -1)
+          {
+            $self->reply(451, "Could not set modified time");
+            return;
+          }
+      }
+    elsif ($require_time)
+      {
+        $self->reply(501, "Need a valid modification time");
+        return;
       }
 
     # Get the status.
@@ -6731,7 +7015,14 @@ sub _MDTM_command
     # sections 2.3 and 3.1.
     my $fmt_time = strftime "%Y%m%d%H%M%S", gmtime ($time);
 
-    $self->reply (213, $fmt_time);
+    if ($extended_response)
+      {
+        $self->reply (213, "Modify=$fmt_time; $rest");
+      }
+    else
+      {
+        $self->reply (213, $fmt_time);
+      }
   }
 
 sub _MLST_command
@@ -6774,9 +7065,9 @@ sub _MLST_command
     my $info = $self->_mlst_format ($filename, $fileh, $dirh);
 
     # Can't use $self->reply since it produces the wrong format.
-    print "250-Listing of $filename:\r\n";
-    print " ", $info, "\r\n";
-    print "250 End of listing.\r\n";
+    $self->{sock_out}->print("250-Listing of $filename:\r\n");
+    $self->{sock_out}->print(" ", $info, "\r\n");
+    $self->{sock_out}->print("250 End of listing.\r\n");
   }
 
 sub _MLSD_command
@@ -7045,6 +7336,21 @@ sub _mlst_format
     # Return the facts to the user in a string.
     return join (";", @facts) . "; " . $filename;
   }
+
+sub _OPTS_UTF8_command
+  {
+    my $self = shift;
+    my $cmd = shift;
+    my $rest = shift;
+
+    if ($rest && uc($rest) ne 'ON') {
+      $self->reply (501, "We only support UTF-8");
+      return;
+    }
+
+    $self->reply (200, 'OK UTF-8 enabled');
+  }
+
 
 # Routine: xfer_start
 # Purpose: Initialize the beginning of a transfer.
@@ -7465,6 +7771,27 @@ sub open_data_connection
 	  or warn "setsockopt: SO_RCVBUF: $!";
       }
 
+    # Data connections are PROTected, enable SSL
+    if ($self->{tls_data}) 
+      {
+        my $cert = $self->config("ssl cert file") || $self->config("ssl certificate file");
+        my $key = $self->config("ssl key file");
+        if (IO::Socket::SSL->start_SSL($sock, 
+                                       SSL_server => 1, 
+                                       #SSL_version => ($self->{tls_type} eq 'TLS' ? 'TLSv1' : 'SSLv3'),
+                                       SSL_cert_file => $cert,
+                                       SSL_key_file => $key,
+                                      ))
+          {
+            # yay, all good
+          }
+        else
+          {
+            # failed, what can we do?
+	    die "Failed to start TLS " . IO::Socket::SSL::errstr();
+          }
+      }
+
     return $sock;
   }
 
@@ -7602,6 +7929,16 @@ sub _store
 	return;
       }
 
+    # Check to make sure the user isn't over their rate tracking quota.
+    my ($check_result, $check_reason) = $self->rate_check_hook($filename, 0, 'u');
+   
+    unless ($check_result)
+      {
+        $check_reason = "Bandwidth quota exceeded" unless defined $check_reason;
+        $self->reply (452, $check_reason);
+        return;
+      }
+
     # Try to open the file.
     my $file = $dirh->open ($filename, ($append ? "a" : "w"));
 
@@ -7633,6 +7970,8 @@ sub _store
 	return;
       }
 
+    my $transfer_size = 0;
+
     # Incoming bandwidth
     $self->xfer_start ($dirh->pathname . $filename, "i") if $self->{_xferlog};
 
@@ -7647,6 +7986,7 @@ sub _store
 	while ($r = $sock->sysread ($buffer, 65536))
 	  {
 	    $self->xfer ($r) if $self->{_xferlog};
+            $transfer_size += $r;
 
 	    # Restart alarm clock timer.
 	    alarm $self->{_idle_timeout};
@@ -7704,6 +8044,7 @@ sub _store
 	while (defined ($_ = $sock->getline))
 	  {
 	    $self->xfer (length $_) if $self->{_xferlog};
+            $transfer_size += length $_;
 
 	    # Remove any telnet-format line endings.
 	    s/[\n\r]*$//;
@@ -7740,8 +8081,15 @@ sub _store
     unless ($sock->close && $file->close)
       {
 	my $reason = $self->system_error_hook();
-	$self->reply (550, "File retrieval error: $reason");
+	$self->reply (550, "File store error: $reason");
 	return;
+      }
+
+    my ($update_result, $update_reason) = $self->rate_update_hook($filename, $transfer_size, 'u');
+    unless ($update_result)
+      {
+        $update_reason = "No reason given" unless defined $update_reason;
+        warn "Rate update failed for upload of $filename ($transfer_size): $update_reason";
       }
 
     $self->xfer_complete if $self->{_xferlog};
@@ -8032,6 +8380,44 @@ sub post_command_hook
 
 =pod
 
+=item ($result, $reason) = $self->rate_check_hook($filename, $bytes, $direction)
+
+Hook: Check a file transfer with a ratecheck server.
+
+$filename - name of file being transferred
+$bytes - how many bytes will be transferred
+$direction - 'u' == upload, 'd' == download
+
+$result is true for sucess, false for failure.  A message can be returned
+to the user in $reason.
+
+Status: optional - default is always approve (true)
+
+=cut
+
+sub rate_check_hook
+  {
+    return (1, '');
+  }
+
+=item ($result, $reason) = $self->rate_update_hook($filename, $bytes, $direction)
+
+$filename - name of file being transferred
+$bytes - how many bytes were be transferred
+$direction - 'u' == upload, 'd' == download
+
+$result is true for sucess, false for failure.  A message can be added to
+the log on failure by setting $reason.
+
+Status: optional - default is always success (true).
+
+=cut
+
+sub rate_update_hook
+  {
+    return (1, '');
+  }
+
 =item $self->system_error_hook
 
 Hook: This hook is used instead of $! when what looks like a system error
@@ -8294,10 +8680,12 @@ C<perl(1)>,
 RFC 765,
 RFC 959,
 RFC 1579,
+RFC 2228,
 RFC 2389,
 RFC 2428,
 RFC 2577,
 RFC 2640,
+RFC 4217,
 Extensions to FTP Internet Draft draft-ietf-ftpext-mlst-NN.txt.
 L<Net::FTPServer::XferLog>
 L<Test::FTP::Server>
