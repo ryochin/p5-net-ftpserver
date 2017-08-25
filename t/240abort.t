@@ -72,7 +72,7 @@ foreach my $mode ('A', 'I')
        Proto => "tcp")
 	or die "socket: $!";
 
-    for (my $i = 0; $i < 50_000; ++$i)
+    for (my $i = 0; $i < 1_000; ++$i)
       {
 	$sock->printf ("This is line %d. %s\r\n", $i, "a" x 1_000);
       }
