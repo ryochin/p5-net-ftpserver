@@ -1,0 +1,19 @@
+requires 'BSD::Resource';
+requires 'Carp';
+requires 'DynaLoader';
+requires 'Fcntl';
+requires 'Getopt::Long';
+requires 'IO::Dir';
+requires 'IO::File';
+requires 'IO::Handle';
+requires 'IO::Scalar';
+requires 'IO::Seekable';
+requires 'IO::Select';
+requires 'IO::Socket';
+requires 'IPC::Open2';
+requires 'POSIX';
+requires 'Socket';
+requires 'Sys::Hostname';
+requires 'Sys::Syslog';
+
+test_requires 'Test::More';
