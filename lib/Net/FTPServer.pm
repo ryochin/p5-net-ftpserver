@@ -358,7 +358,7 @@ process and are important in avoiding denial of service (DoS)
 attacks against the FTP server.
 
  Resource         Default   Unit
- limit memory       32768   KBytes  Amount of memory per child
+ limit memory       65536   KBytes  Amount of memory per child
  limit nr processes    10   (none)  Number of processes
  limit nr files        20   (none)  Number of open files
 
@@ -2680,7 +2680,7 @@ sub run
     # Perform normal per-process limits.
     if ($r == 0)
       {
-	my $limit = 1024 * ($self->config ("limit memory") || 32768);
+	my $limit = 1024 * ($self->config ("limit memory") || 65536);
 	$self->_set_rlimit ("RLIMIT_DATA", $limit) if $limit >= 0;
 
 	$limit = $self->config ("limit nr processes") || 10;
